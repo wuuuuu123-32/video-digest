@@ -17,12 +17,18 @@ import os
 import sys
 import time
 
-import requests
+try:
+    import requests
+except ImportError:
+    print('Missing package: requests')
+    print('Install with: python -m pip install --target pylibs requests')
+    sys.exit(4)
 
 try:
     import qrcode
 except ImportError:
-    print('缺少 qrcode 包：pip install --target <video-digest>/pylibs qrcode')
+    print('Missing package: qrcode[pil]')
+    print('Install with: python -m pip install --target pylibs "qrcode[pil]"')
     sys.exit(4)
 
 HERE = os.path.dirname(os.path.abspath(__file__))

@@ -271,6 +271,10 @@ async function main() {
     fs.renameSync(stage, dir);
   }
   const runLog = path.join(dir, 'run.log');
+  // ❗短链（b23.tv）时 bv 匹配不到 → stage 先是 `_probe`，拿到 info.id 后才改名成 `<BV>_p1`。
+  //   而 tmpl 是在改名**之前**按 stage 算的，所以视频会落在 `_probe\`，抽帧那步在 dir 里找不到它 →
+  //   「sheets/ 无」（2026-10-13 踩到）。下载一律用改名**之后**的 tmpl。
+  const tmplFinal = path.join(dir, '%(id)s.%(ext)s');
 
   const meta = {
     id, title: info.title, uploader: info.uploader || info.channel,
@@ -348,7 +352,7 @@ async function main() {
     //   （2026-10-12 踩到：某个视频只有 1080P60，`bv*[height<=480]` 无匹配 → Requested format is not available）。
     //   兜底必须落到 `bv*+ba`（任意画质的视频流 + 最佳音频流）。
     st = ytdlp([...common, '-f', `bv*[height<=${o.height}]+ba/bv*+ba/b`,
-      '--merge-output-format', 'mp4', '-o', tmpl, o.url], runLog);
+      '--merge-output-format', 'mp4', '-o', tmplFinal, o.url], runLog);
     logAt(dir, `video exit=${st}`);
     let best = 0;
     for (const f of fs.readdirSync(dir)) {

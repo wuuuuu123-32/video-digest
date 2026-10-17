@@ -26,19 +26,37 @@ LLM 读不了视频流，只能降维。本工具走两条通道，**两条是�
 #    下载到 bin/yt-dlp（无扩展名）
 #    https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp
 
-# 2) qrcode 包（只有扫码登录用得到），解压到 pylibs/
-#    https://pypi.org/project/qrcode/  的 *-py3-none-any.whl
+# 2) 扫码登录依赖（只在首次登录时需要），见下方「首次扫码登录」
 ```
 
 脚本会自动在 `D:\anaconda3\python.exe` 等常见位置找 Python；找不到时用环境变量 `PYTHON_PATH` 指定。
 
 ## 用法
 
-```powershell
-# 首次：扫码登录 B站（生成 out/bili-qr.png，用手机 B站 App 扫）
-python bili-login.py
+### 首次扫码登录
 
-# 之后：给个链接就行
+扫码登录需要额外安装 `requests` 和 `qrcode`（含 Pillow 图片支持）。它们只用于扫码并生成登录二维码；运行视频处理流程本身不需要这些包。请在仓库根目录按平台执行：
+
+**Windows (PowerShell)**
+
+```powershell
+python -m pip install --target .\pylibs "qrcode[pil]" requests
+$env:PYTHONPATH = "$PWD\pylibs"
+python bili-login.py
+```
+
+**macOS / Linux**
+
+```sh
+python3 -m pip install --target ./pylibs 'qrcode[pil]' requests
+PYTHONPATH="$PWD/pylibs" python3 bili-login.py
+```
+
+首次运行会生成 `out/bili-qr.png`，用手机 B站 App 扫码。之后 cookie 过期需要重新登录时，设置好 `PYTHONPATH` 后再次运行 `python bili-login.py`（macOS/Linux 使用 `python3`）。
+
+### 处理视频
+
+```sh
 node watch-video.mjs "https://www.bilibili.com/video/BVxxxxxxxxxx"
 ```
 
